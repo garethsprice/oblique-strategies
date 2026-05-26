@@ -1,6 +1,6 @@
-// Baseline: a regular agent — single query, no frame fan-out, no scoring,
+// Baseline: a regular agent — single query, no card fan-out, no scoring,
 // no deepening. The straightforward "ask Claude for ideas on this problem"
-// that connect-dots is meant to outperform.
+// that the Oblique Strategies loop is meant to outperform.
 
 import { callLLM } from "../src/llm.js";
 

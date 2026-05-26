@@ -2,7 +2,7 @@
 //
 // The Steve-Jobs "connecting the dots" loop:
 //   1. Diverge wide — fan out N parallel branches, each running under a
-//      different cognitive frame. No critic, no cross-talk. ADHD-mode.
+//      different Oblique Strategy. No critic, no cross-talk.
 //   2. Score every leaf on novelty / viability / fit.
 //   3. Cluster — surface the SHAPE of the idea space, not just the leaves.
 //   4. Prune to top-K and DEEPEN those by recursive expansion. This is
@@ -236,12 +236,11 @@ export async function run(opts: RunOptions): Promise<RunResult> {
     ideasPerFrame = 6,
     topK = 3,
     concurrency = 4,
-    codeMode = true,
     model,
     onEvent,
   } = opts;
 
-  const frames = selectFrames(framesPerRun, codeMode);
+  const frames = selectFrames(framesPerRun);
   const limit = pLimit(concurrency);
 
   // PHASE 1 — DIVERGE. Pure parallel fan-out. No branch sees another.

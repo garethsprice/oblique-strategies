@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// CLI surface for connect-dots.
+// CLI surface for oblique-strategies.
 //
 // Usage:
-//   connect-dots "how should we shard this queue?"
-//   connect-dots "..." --frames 6 --ideas 8 --top 4 --context ./CONTEXT.md
-//   connect-dots "..." --json > result.json
+//   oblique-strategies "how should we shard this queue?"
+//   oblique-strategies "..." --frames 6 --ideas 8 --top 4 --context ./CONTEXT.md
+//   oblique-strategies "..." --json > result.json
 
 import { readFileSync } from "node:fs";
 import { run } from "./engine.js";
@@ -18,14 +18,13 @@ type Flags = {
   ideas?: number;
   top?: number;
   concurrency?: number;
-  codeMode: boolean;
   json: boolean;
   quiet: boolean;
   model?: string;
 };
 
 function parse(argv: string[]): Flags {
-  const f: Flags = { problem: "", codeMode: true, json: false, quiet: false };
+  const f: Flags = { problem: "", json: false, quiet: false };
   const rest: string[] = [];
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -36,7 +35,6 @@ function parse(argv: string[]): Flags {
       case "--concurrency": f.concurrency = Number(argv[++i]); break;
       case "--context": f.context = readFileSync(argv[++i], "utf8"); break;
       case "--model": f.model = argv[++i]; break;
-      case "--no-code-mode": f.codeMode = false; break;
       case "--json": f.json = true; break;
       case "--quiet": f.quiet = true; break;
       case "-h":
@@ -52,32 +50,31 @@ function parse(argv: string[]): Flags {
 }
 
 function printHelp() {
-  console.log(`adhd — a skill for coding agents
+  console.log(`oblique-strategies — divergent ideation for coding agents
 
   Stop your agent from picking the first answer. Fans out many parallel
-  divergent thoughts under different cognitive frames, scores them,
-  prunes traps, and deepens the survivors. Tree-of-thought with pruning,
-  built on the Claude Agent SDK.
+  divergent thoughts, each drawn under one of Brian Eno & Peter Schmidt's
+  211 Oblique Strategies, scores them, prunes traps, and deepens the
+  survivors. Tree-of-thought with pruning, built on the Claude Agent SDK.
 
 USAGE
-  adhd "<problem>" [flags]
+  oblique-strategies "<problem>" [flags]      (alias: oblique)
 
 FLAGS
-  --frames N        number of parallel divergence branches (default 5)
+  --frames N        number of parallel divergence branches / cards (default 5)
   --ideas N         ideas per branch (default 6)
   --top N           how many to deepen / focus on (default 3)
   --concurrency N   max parallel LLM calls (default 4)
   --context PATH    file to inject as context (code, constraints, stack)
   --model NAME      override the SDK model
-  --no-code-mode    don't bias frames toward engineering
   --json            emit RunResult as JSON
   --quiet           suppress progress events
   -h, --help
 
 EXAMPLES
-  adhd "design a rate limiter that survives a leader election"
-  adhd "name this function" --frames 3 --ideas 8 --top 2
-  adhd "..." --context ./snippet.ts --json > out.json
+  oblique-strategies "design a rate limiter that survives a leader election"
+  oblique-strategies "name this function" --frames 3 --ideas 8 --top 2
+  oblique-strategies "..." --context ./snippet.ts --json > out.json
 `);
 }
 
@@ -103,7 +100,6 @@ async function main() {
     ideasPerFrame: flags.ideas,
     topK: flags.top,
     concurrency: flags.concurrency,
-    codeMode: flags.codeMode,
     model: flags.model,
     onEvent,
   };

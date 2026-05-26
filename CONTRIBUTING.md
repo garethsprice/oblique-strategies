@@ -1,10 +1,14 @@
-# Contributing to ADHDStack
+# Contributing to Oblique Strategies
 
-Thanks for caring. ADHD is small on purpose — the value lives in the *frames* and the *loop discipline*, not the LOC. Most contributions will be one of:
+Thanks for caring. This project is small on purpose — the value lives in the
+*deck* (Brian Eno & Peter Schmidt's Oblique Strategies, used as divergence
+frames) and the *loop discipline*, not the LOC. Most contributions will be one
+of:
 
-1. **A new frame** (highest leverage, smallest change)
+1. **A tweak to how cards are drawn or wrapped** (the `selectFrames` /
+   `strategyPrompt` logic in `src/frames.ts`)
 2. **An improvement to the diverge/score/cluster/deepen loop**
-3. **A new eval problem** that exposes where ADHD wins or loses
+3. **A new eval problem** that exposes where the loop wins or loses
 4. **Docs / examples / launch material**
 
 ---
@@ -12,8 +16,8 @@ Thanks for caring. ADHD is small on purpose — the value lives in the *frames* 
 ## Dev setup
 
 ```bash
-git clone https://github.com/UditAkhourii/adhd.git
-cd adhd
+git clone https://github.com/garethsprice/oblique-strategies.git
+cd oblique-strategies
 npm install
 npm run build
 export ANTHROPIC_API_KEY=...   # or rely on local Claude Code auth
@@ -28,56 +32,43 @@ npm run dev -- "your test problem here"   # tsx, no build step
 
 ---
 
-## Authoring a new frame
+## The deck
 
-A frame is the cheapest, highest-leverage contribution. Every new frame widens what the package can surface for the next user.
-
-**A good frame** pushes the generator into a corner it would not naturally drift toward. Bad frames are paraphrases of an existing one.
-
-### The shape
-
-In [`src/frames.ts`](./src/frames.ts), append to the `FRAMES` array:
+The 211 cards live in `src/frames.ts` as the `STRATEGIES` string array, copied
+verbatim from the full compiled deck at <https://oblique.ookb.co/>. Each card is
+turned into a `Frame` by `strategyPrompt()`, which wraps it as a lateral
+provocation, and `selectFrames(n)` deals `n` cards at random per run.
 
 ```ts
-{
-  id: "supply-chain-attacker",
-  label: "Supply-chain attacker",
-  prompt:
-    "You compromise software by attacking what people TRUST: package managers, build tools, " +
-    "CI runners, vendored dependencies, mirror infrastructure. Re-ask this problem as: what " +
-    "would I plant, and where, to compromise the result without touching the application code?",
-  tags: ["code", "design", "wild"],
-},
+export type Frame = {
+  id: string;     // stable slug, e.g. "os-042" (zero-padded deck index)
+  label: string;  // the card text itself, shown to the user
+  prompt: string; // the card wrapped as a divergent-branch instruction
+};
 ```
 
-Fields:
+**Editing the deck.** The canonical list is the published deck — don't invent
+cards. If you're correcting a transcription error or syncing with a new
+printing, edit the `STRATEGIES` array and keep it verbatim. The `os-NNN` ids are
+positional, so prefer *appending* over reordering to keep ids stable.
 
-| Field | What |
-|---|---|
-| `id` | kebab-case, stable forever — don't rename |
-| `label` | shown to the user; ~3 words |
-| `prompt` | the vantage prompt. Written as instruction to the generator: *"You are X. Re-ask this as Y."* |
-| `tags` | any of `"code"`, `"design"`, `"general"`, `"wild"`. Tags affect frame selection — `code-mode` (default) biases toward `code`/`design`; `wild` always has one slot reserved per run. |
-
-### Quality bar
-
-A new frame should pass at least two of these:
-
-- **Distinct vocabulary** — the prompt uses concepts (latency budget, pheromone trails, futures contracts, frame-perfect skip) that none of the existing frames use.
-- **Distinct posture** — adversarial vs constructive vs naive vs maximalist. Not just a different domain saying the same thing.
-- **Reproducible distortion** — running the same problem through this frame consistently surfaces ideas the other frames don't.
+**Changing how cards are used.** The two load-bearing functions are
+`strategyPrompt()` (how literally vs metaphorically the card is framed) and
+`selectFrames()` (the draw is uniform at random by design — cherry-picking
+"relevant" cards defeats the point). Changes here should be justified against
+idea quality on the eval suite, not vibes.
 
 ### Test it
 
-Run your frame in isolation and check that the ideas are *structurally different* from what the other frames produce on the same problem:
+Run a problem and check the drawn cards produce *structurally different* ideas,
+not paraphrases of each other:
 
 ```bash
-# tweak src/cli.ts or write a quick scratch script that forces selectFrames
-# to return just your new frame, then run:
 npm run dev -- "design a write-ahead log under bursty load"
 ```
 
-If the ideas are paraphrases of what the "hardware" or "logistics" frame already produces, the frame isn't earning its slot. Iterate the prompt.
+If two branches converge on the same idea despite different cards, the wrapping
+prompt may be too literal — iterate `strategyPrompt`.
 
 ---
 
@@ -98,13 +89,15 @@ npm run evals               # full suite
 npm run evals -- --problem your-new-id   # just yours
 ```
 
-Output is `EVALS.md` + `bench/results.json`. Costs ~10 LLM calls per problem (5 frames + score + cluster + 3 deepen + 1 baseline + 1 judge).
+Output is `EVALS.md` + `bench/results.json`. Costs ~10 LLM calls per problem (5 cards + score + cluster + 3 deepen + 1 baseline + 1 judge).
 
 ---
 
 ## Loop changes (engine.ts)
 
-The loop is small on purpose. Before changing it, read the source spec in [SKILL.md](./SKILL.md) — most "improvements" violate the load-bearing invariants:
+The loop is small on purpose. Before changing it, read the loop description in
+[the skill](./skills/oblique-strategies/SKILL.md) — most "improvements" violate
+the load-bearing invariants:
 
 - **Branches must not see each other during divergence.** This is the whole point.
 - **Generator and critic must use separate LLM calls with opposite system prompts.** Don't merge them for efficiency.
@@ -117,7 +110,7 @@ Good loop changes:
 - recursive deepen (multi-level ToT)
 - pluggable scorers (let users supply their own weights / trap detectors)
 - streaming output during divergence
-- cross-model support (frames don't depend on Claude)
+- cross-model support (the cards don't depend on Claude)
 
 ---
 
@@ -133,7 +126,7 @@ Good loop changes:
 ## PRs
 
 - One concern per PR.
-- New frame? Include a 2-line "what this frame catches that others miss" in the PR body.
+- Deck or card-wrapping change? Include a 2-line "what this catches that the current wrapping misses" in the PR body.
 - New eval? Include the run output.
 - Loop change? Include before/after on at least one eval problem.
 

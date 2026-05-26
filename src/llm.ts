@@ -3,8 +3,9 @@
 // with a tight system prompt and the user's problem framing.
 //
 // Each divergent branch is its own query() call so they run in true
-// parallel — this is the "ADHD" fan-out. Branches don't see each other's
-// output during divergence (mixing kills idea quality).
+// parallel — this is the Oblique Strategies fan-out, one card per branch.
+// Branches don't see each other's output during divergence (mixing kills
+// idea quality).
 
 import { query } from "@anthropic-ai/claude-agent-sdk";
 

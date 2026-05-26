@@ -1,137 +1,259 @@
-// Frames push the generator into corners it wouldn't naturally go.
-// Each frame is a strategy for re-asking the same engineering problem
-// from a different vantage point. Pick a subset per run — don't grind all.
+// Frames are Brian Eno & Peter Schmidt's Oblique Strategies — a deck of 211
+// aphorisms ("cards") meant to break creative blocks. Each card is used here as
+// a divergent FRAME: a lateral provocation that re-angles the same problem. One
+// card per parallel branch; branches stay isolated so the cards do not blur.
+//
+// Source: the full compiled deck (all printings) at https://oblique.ookb.co/
+// (c) 1975-2015 Brian Eno and Peter Schmidt.
 
 export type Frame = {
-  id: string;
-  label: string;
-  // The system prompt fragment injected into the divergent branch.
-  // Written as an instruction: "you are X, generate ideas as X would."
+  id: string;     // stable slug, e.g. "os-042"
+  label: string;  // the card text itself, shown to the user
+  // The system-prompt fragment injected into a divergent branch: the card,
+  // wrapped so the generator treats it as a lateral nudge, not a literal order.
   prompt: string;
-  // Engineering domain tag — used by the orchestrator to bias frame
-  // selection when the problem looks code-shaped.
-  tags: ("code" | "design" | "general" | "wild")[];
 };
 
-export const FRAMES: Frame[] = [
-  {
-    id: "hardware-eyes",
-    label: "Hardware engineer",
-    prompt:
-      "You think in latency, memory layout, and physical constraints. Re-ask this problem as if it were a hardware/firmware problem. What does the bus topology, the cache, the timing budget tell you?",
-    tags: ["code", "wild"],
-  },
-  {
-    id: "regulator",
-    label: "Regulator / auditor",
-    prompt:
-      "You audit systems for compliance and failure modes. What ideas surface when you ask: what must be provable, traceable, or refusable here?",
-    tags: ["design", "general"],
-  },
-  {
-    id: "ten-year-old",
-    label: "10-year-old",
-    prompt:
-      "You are a curious 10-year-old who has never seen software before. Describe naive but unencumbered approaches. Ignore convention.",
-    tags: ["general", "wild"],
-  },
-  {
-    id: "adversary",
-    label: "Competitor trying to break it",
-    prompt:
-      "You are a hostile competitor or attacker. Generate approaches that exploit, fail, or sabotage the obvious solution. Then invert into ideas.",
-    tags: ["code", "design"],
-  },
-  {
-    id: "biology",
-    label: "Cross-domain: biology",
-    prompt:
-      "Transplant a mechanism from biology — immune systems, neural plasticity, cell signaling, evolution, gut flora — and force-fit it onto this engineering problem.",
-    tags: ["code", "wild"],
-  },
-  {
-    id: "logistics",
-    label: "Cross-domain: logistics / supply chain",
-    prompt:
-      "Steal mechanisms from logistics: queues, batching, just-in-time, hub-and-spoke, returns, last-mile. Apply them literally to this problem.",
-    tags: ["code", "design"],
-  },
-  {
-    id: "game-design",
-    label: "Cross-domain: game design",
-    prompt:
-      "Approach this as a game designer. What are the loops, rewards, friction, save-states, speedrun tricks? Treat the user/system as a player.",
-    tags: ["design", "general"],
-  },
-  {
-    id: "markets",
-    label: "Cross-domain: markets",
-    prompt:
-      "Treat the problem as a market. Who are the buyers, sellers, market-makers? What does an auction, a futures contract, a clearing house look like here?",
-    tags: ["design", "wild"],
-  },
-  {
-    id: "inversion",
-    label: "Inversion",
-    prompt:
-      "Ask the OPPOSITE question. If the goal is X, brainstorm 'how would we guarantee NOT-X' — then negate each answer back into an idea.",
-    tags: ["code", "design", "general"],
-  },
-  {
-    id: "extreme-zero",
-    label: "Extreme: $0 budget, 1 hour",
-    prompt:
-      "You have no money, no team, one hour. What's the crudest version that still does the load-bearing thing? Hacks, hardcoded values, manual loops welcome.",
-    tags: ["code", "general"],
-  },
-  {
-    id: "extreme-infinite",
-    label: "Extreme: infinite budget, 10 years",
-    prompt:
-      "You have infinite compute, infinite engineers, a decade. What does the maximalist version look like? What would only be possible at that scale?",
-    tags: ["design", "wild"],
-  },
-  {
-    id: "remove-assumption",
-    label: "Remove the load-bearing assumption",
-    prompt:
-      "Name the thing everyone treats as fixed in this problem (the framework, the database, the request/response model, the file system, the network). Imagine it's gone. Generate ideas that only exist in that world.",
-    tags: ["code", "design", "wild"],
-  },
-  {
-    id: "speedrunner",
-    label: "Speedrunner",
-    prompt:
-      "You're a speedrunner. Find glitches, skips, out-of-bounds tricks, frame-perfect shortcuts. What's the abusive-but-legal path through this problem?",
-    tags: ["code", "wild"],
-  },
-  {
-    id: "ant-colony",
-    label: "Ant colony / swarm",
-    prompt:
-      "No central planner. Many dumb agents, local rules, pheromone trails. How does the problem solve itself emergently?",
-    tags: ["code", "wild"],
-  },
-  {
-    id: "ops-3am",
-    label: "On-call at 3am",
-    prompt:
-      "You're the on-call engineer woken at 3am when this thing breaks. What design would let you not get paged? What's the runbook-shaped solution?",
-    tags: ["code", "design"],
-  },
+// The 211 cards, verbatim.
+export const STRATEGIES: string[] = [
+  "(Organic) machinery.",
+  "A line has two sides.",
+  "A very small object - Its centre.",
+  "Abandon desire.",
+  "Abandon normal instructions.",
+  "Accept advice.",
+  "Accretion.",
+  "Adding on.",
+  "Allow an easement (an easement is the abandonment of a stricture).",
+  "Always give yourself credit for having more than personality.",
+  "Always the first steps.",
+  "Animal noises.",
+  "Are there sections? Consider transitions.",
+  "Ask a computer program to repeat your last action.",
+  "Ask people to work against their better judgement.",
+  "Ask your body.",
+  "Assemble some of the elements in a group and treat the group.",
+  "Back up a few steps. What else could you have done?",
+  "Balance the consistency principle with the inconsistency principle.",
+  "Be dirty.",
+  "Be extravagant.",
+  "Be less critical more often.",
+  "Breathe more deeply.",
+  "Build bridges.",
+  "Burn bridges.",
+  "Call your mother and ask her what to do.",
+  "Cascades.",
+  "Change ambiguities to specifics.",
+  "Change specifics to ambiguities.",
+  "Change instrument roles.",
+  "Change nothing and continue with immaculate consistency.",
+  "Children’s voices speaking.",
+  "Children’s voices singing.",
+  "Cluster analysis.",
+  "Consider different fading systems.",
+  "Consider transitions.",
+  "Consult other promising sources.",
+  "Consult other unpromising sources.",
+  "Convert a melodic element into a rhythmic element.",
+  "Courage!",
+  "Cut a vital connection.",
+  "Cut a virtual connection.",
+  "Decorate, decorate.",
+  "Define an area as “safe” and use it as an anchor.",
+  "Describe the landscape in which this belongs.",
+  "Destroy nothing.",
+  "Destroy the most important thing.",
+  "Discard an axiom.",
+  "Disciplined self-indulgence.",
+  "Disconnect from desire.",
+  "Discover the recipes you are using and abandon them.",
+  "Discover your formulas and abandon them.",
+  "Display your talent.",
+  "Distorting time.",
+  "Do nothing for as long as possible.",
+  "Do something boring.",
+  "Do something sudden, destructive and unpredictable.",
+  "Do the last thing first.",
+  "Do the washing up.",
+  "Do the words need changing?",
+  "Do we need holes?",
+  "Don’t avoid what is easy.",
+  "Don’t be afraid of things because they’re easy to do.",
+  "Don’t be frightened of cliches.",
+  "Don’t be frightened to display your talents.",
+  "Don’t break the silence.",
+  "Don’t stress one thing more than another.",
+  "Emphasize differences.",
+  "Emphasize repetitions.",
+  "Emphasize the flaws.",
+  "Faced with a choice, do both!",
+  "Feed the recording back out of the medium.",
+  "Feedback recordings into an acoustic situation.",
+  "Fill every beat with something.",
+  "First work alone, then work in unusual pairs.",
+  "From nothing to more than nothing.",
+  "Get your neck massaged.",
+  "Ghost echoes.",
+  "Give the game away.",
+  "Give way to your worst impulse.",
+  "Go outside. Shut the door.",
+  "Go slowly all the way round the outside.",
+  "Go to an extreme, move back to a more comfortable place.",
+  "How would someone else do it?",
+  "How would you explain this to your parents?",
+  "How would you have done it?",
+  "Humanize something that is free of error.",
+  "Idiot glee.",
+  "Imagine the music as a moving chain or caterpillar.",
+  "Imagine the music as a series of disconnected events.",
+  "In total darkness.",
+  "In a very large room, very quietly.",
+  "Infinitesimal gradations.",
+  "Instead of changing the thing, change the world around it.",
+  "Credibility of intentions.",
+  "Nobility of intentions.",
+  "Humility of intentions.",
+  "Is it finished?",
+  "Is something missing?",
+  "Is the intonation correct?",
+  "Is the style right?",
+  "Is the tuning appropriate?",
+  "It is quite possible (after all).",
+  "It is simply a matter or work.",
+  "Just carry on.",
+  "Left channel, right channel, centre channel.",
+  "List the qualities it has. List those you’d like.",
+  "Listen in total darkness.",
+  "Listen in a very large room, very quietly.",
+  "Listen to the quiet voice",
+  "Look at a very small object, look at its centre.",
+  "Look at the order in which you do things.",
+  "Look closely at the most embarrassing details and amplify.",
+  "Lost in useless territory.",
+  "Lowest common denominator check: single beat; single note; single riff.",
+  "Magnify the most difficult details.",
+  "Make a blank valuable by putting it in an excquisite frame.",
+  "Make a sudden, destructive unpredictable action. Incorporate.",
+  "Make an exhaustive list of everything you might do and do the last thing on the list.",
+  "Make it more sensual.",
+  "Make it more banal.",
+  "Make what’s perfect more human.",
+  "Mechanize something idiosyncratic.",
+  "Move towards the impossible.",
+  "Move towards the unimportant.",
+  "Mute and continue.",
+  "Not building a wall but making a brick.",
+  "Once the search is in progress, something will be found.",
+  "Only a part, not the whole.",
+  "Only one element of each kind.",
+  "Overtly resist change.",
+  "Pae White’s non-blank graphic metacard.",
+  "Pay attention to distractions.",
+  "Picture of a man spotlighted.",
+  "Put in earplugs.",
+  "Question the heroic approach.",
+  "Rearrange.",
+  "Remember those quiet evenings.",
+  "Remove a restriction.",
+  "Remove ambiguities and convert to specifics.",
+  "Remove specifics and convert to ambiguities.",
+  "Remove the middle, extend the edges.",
+  "Repetition is a form of change.",
+  "Retrace your steps.",
+  "Revaluation (a warm feeling).",
+  "Reverse.",
+  "Short circuit (example; a man eating peas with the idea that they will improve his virility shovels them straight into his lap).",
+  "Shut the door and listen from outside.",
+  "Simple subtraction.",
+  "Simply a matter of work.",
+  "Slow preparation, fast execution.",
+  "Spectrum analysis.",
+  "State the problem in words as simply as possible.",
+  "Steal a solution.",
+  "Take a break.",
+  "Take away as much mystery as possible. What is left?",
+  "Take away the elements in order of apparent non-importance.",
+  "Take away the important parts.",
+  "Tape your mouth.",
+  "The inconsistency principle.",
+  "The most important thing is the thing most easily forgotten.",
+  "The tape is now the music.",
+  "Think inside the work.",
+  "Think outside the work.",
+  "Think of the radio.",
+  "Tidy up.",
+  "Towards the insignificant.",
+  "Trust in the you of now.",
+  "Try faking it.",
+  "Turn it upside down.",
+  "Twist the spine.",
+  "Use “unqualified” people.",
+  "Use an old idea.",
+  "Use an unacceptable color.",
+  "Use cliches.",
+  "Use fewer notes.",
+  "Use filters.",
+  "Use something nearby as a model.",
+  "Use your own ideas.",
+  "Voice your suspicions.",
+  "Water.",
+  "Fire.",
+  "Earth.",
+  "Wind.",
+  "Heart.",
+  "What are the sections sections of? (Imagine a caterpillar moving).",
+  "What context would look right?",
+  "What do you do? Now, what do you do best?",
+  "What else is this like?",
+  "What is the reality of the situation?",
+  "What is the simplest solution?",
+  "What mistakes did you make last time?",
+  "What most recently impressed you? How is it similar? What can you learn from it? What could you take from it?",
+  "What to increase? What to reduce? What to maintain?",
+  "What were the branch points in the evolution of this entity?",
+  "What were you really thinking about just now? Incorporate.",
+  "What would make this really successful?",
+  "What would your closest friend do?",
+  "What wouldn’t you do? Do that.",
+  "When is it for?",
+  "When is it for? Who is it for?",
+  "Who is it for?",
+  "Where is the edge?",
+  "Which parts can be grouped?",
+  "Who would make this really successful?",
+  "Work at a different speed.",
+  "Would anyone want it?",
+  "You are an engineer.",
+  "You can only make one dot at a time.",
+  "You don’t have to be ashamed of using your own ideas.",
+  "Your mistake was a hidden intention.",
 ];
 
-// Pick N frames for a run. Bias toward engineering tags when codeMode is on,
-// but always include at least one wildcard so divergence stays weird.
-export function selectFrames(n: number, codeMode = true): Frame[] {
-  const pool = codeMode
-    ? FRAMES.filter((f) => f.tags.includes("code") || f.tags.includes("design"))
-    : [...FRAMES];
-  const wild = FRAMES.filter((f) => f.tags.includes("wild"));
+// Wrap a card as a divergent-branch instruction. Centralized so the 211 entries
+// stay pure data and the framing lives in exactly one place.
+export function strategyPrompt(card: string): string {
+  return (
+    `Brian Eno & Peter Schmidt's Oblique Strategy: "${card}"
+` +
+    `Treat this card as a lateral provocation, not a literal instruction. ` +
+    `Interpret it loosely — metaphorically if that is the only way it fits — ` +
+    `and let it bend how you attack the problem. Generate ideas this card ` +
+    `nudges you toward, however oblique the connection.`
+  );
+}
 
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  const picked = shuffled.slice(0, Math.max(1, n - 1));
-  const wildPick = wild[Math.floor(Math.random() * wild.length)];
-  if (!picked.find((f) => f.id === wildPick.id)) picked.push(wildPick);
-  return picked.slice(0, n);
+// One frame per card. id is a zero-padded index so it stays stable and unique
+// even though a few cards repeat with slightly different wording across printings.
+export const FRAMES: Frame[] = STRATEGIES.map((card, i) => ({
+  id: `os-${String(i + 1).padStart(3, "0")}`,
+  label: card,
+  prompt: strategyPrompt(card),
+}));
+
+// Draw N cards at random for a run. The cards are domain-agnostic provocations,
+// so there is no tag biasing — the draw is uniform, like shuffling the deck and
+// dealing N off the top. Always include at least one.
+export function selectFrames(n: number): Frame[] {
+  const shuffled = [...FRAMES].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.max(1, Math.min(n, FRAMES.length)));
 }
