@@ -405,7 +405,7 @@ Adding a new problem is a 4-line change to [`bench/problems.json`](./bench/probl
 
 ## License
 
-MIT.
+MIT License.
 
 ---
 
