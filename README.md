@@ -23,26 +23,52 @@ Like Steve Jobs' *connecting the dots* — but the dots get generated under deli
 
 It is the no-brainer skill to reach for on **creative work, interdisciplinary work, design decisions, fuzzy debugging, naming, API surface design, strategy, positioning, and any prompt of the shape *"give me a few ways to…"***.
 
-Built on the [Claude Agent SDK](https://docs.claude.com/en/api/agent-sdk). Ships as a Node/TS library, a CLI (`adhd`), and a skill spec ([SKILL.md](./SKILL.md)).
+Ships three ways: as a **Claude Code skill** ([SKILL.md](./SKILL.md), drop-in, no install required), as a **Node/TS library** ([`adhd-agent`](https://www.npmjs.com/package/adhd-agent) on npm), and as a **CLI** (`adhd "your problem here"`). The library and CLI are built on the [Claude Agent SDK](https://docs.claude.com/en/api/agent-sdk).
 
 ---
 
 ## Install
 
+### Option 1 — as a Claude Code skill (no install)
+
+Drop the skill file into your Claude Code skills directory and Claude picks it up automatically.
+
 ```bash
-# CLI (global):
+mkdir -p ~/.claude/skills/adhd
+curl -fsSL https://raw.githubusercontent.com/UditAkhourii/adhd/main/SKILL.md \
+  -o ~/.claude/skills/adhd/SKILL.md
+```
+
+Restart Claude Code. The skill auto-triggers on brainstorm/ideate/design intents, or you can invoke it explicitly: `/adhd "design a rate limiter that survives a leader election"`. No `npm install`, no API key beyond your existing Claude Code auth.
+
+The skill uses Claude Code's Agent/Task tool to spawn isolated parallel divergence branches. Same loop, same isolation property as the library.
+
+### Option 2 — as a CLI
+
+```bash
 npm install -g adhd-agent
 adhd "design a rate limiter that survives a leader election"
+```
 
-# library:
+Auth: picks up `ANTHROPIC_API_KEY` from the environment, or inherits auth from a local Claude Code install.
+
+### Option 3 — as a library
+
+```bash
 npm install adhd-agent
+```
 
-# or from source:
+```ts
+import { run } from "adhd-agent";
+const result = await run({ problem: "...", framesPerRun: 5, topK: 3 });
+```
+
+### Option 4 — from source
+
+```bash
 git clone https://github.com/UditAkhourii/adhd.git
 cd adhd && npm install && npm run build
 ```
-
-Auth: ADHD uses the Claude Agent SDK, which picks up `ANTHROPIC_API_KEY` from the environment, or inherits auth from a local Claude Code install.
 
 ---
 
@@ -338,4 +364,4 @@ MIT.
 
 ## Credits
 
-ADHD operationalizes the *Divergent Ideation* skill — see [SKILL.md](./SKILL.md) for the source spec.
+ADHD operationalizes the *Divergent Ideation* source spec — see [SOURCE-SPEC.md](./SOURCE-SPEC.md) for the original prose. The runnable skill is at [SKILL.md](./SKILL.md).
