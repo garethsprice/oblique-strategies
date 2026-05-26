@@ -385,7 +385,7 @@ npm run evals -- --problem lru-100ms   # one specific problem
 
 Output: [`EVALS.md`](./EVALS.md) (human-readable verdicts + aggregate table) and `bench/results.json` (full transcripts).
 
-The GitHub Actions [Evals workflow](./.github/workflows/evals.yml) can run the same suite on demand if you set an `ANTHROPIC_API_KEY` secret on the repo. Results upload as artifacts and `EVALS.md` is committed back to `main`. The committed `EVALS.md` in the repo today is from a local run.
+The eval suite is **local only**. There is no CI workflow for it. Reproducible numbers come from `npm run evals` on your machine; commit the resulting `EVALS.md` if you want to update the repo's published figures. The committed `EVALS.md` was generated this way.
 
 Adding a new problem is a 4-line change to [`bench/problems.json`](./bench/problems.json) — see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
