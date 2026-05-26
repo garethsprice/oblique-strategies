@@ -1,17 +1,36 @@
 ---
 name: adhd
 description: >
-  Wide before deep. Fans out N parallel divergent thoughts under structurally
-  different cognitive frames (regulator, biology, speedrunner, 10 year old,
-  $0 budget), then scores, clusters, prunes traps, and deepens only the top
-  survivors. The isolated parallel branches and the separated generator/critic
-  phases are load-bearing. Do not collapse them into a single linear thought.
-  Use when the user asks to brainstorm, ideate, generate options, design an
-  architecture, name something, pick between approaches, plan a refactor,
-  design an API or SDK surface, generate hypothesis classes for a fuzzy bug,
-  or any prompt of the shape "give me a few ways to". Also use when the
-  obvious answer feels obvious and wrong, or when the user explicitly invokes
-  /adhd or asks for "ADHD mode".
+  Parallel divergent ideation for coding agents. Spawns N isolated branches
+  under different cognitive frames (regulator, biology, speedrunner, 10 year
+  old, $0 budget), scores, prunes traps, and deepens the top survivors. The
+  isolated parallel branches and the separated generator/critic phases are
+  load-bearing. Costs about 10 LLM/Agent calls per run (5 to 10x a single
+  answer) so invocation is gated.
+
+  UNCONDITIONAL TRIGGER. When the user types "/adhd" or explicitly asks for
+  "ADHD mode", "use the adhd skill", or "run ADHD on this", invoke the full
+  loop without further judgment. Skip the pre-flight check.
+
+  CONDITIONAL TRIGGER. For everything else, self-judge before invoking.
+  Only proceed when ALL of these hold:
+  (a) the answer space is OPEN-ENDED (multiple viable answers, no single
+      canonical correct one),
+  (b) the cost of the obvious answer being wrong is high (architecture
+      decision, fuzzy bug with no known root cause, API or SDK surface
+      design, naming for a public product, strategy, positioning, schema
+      design, migration planning), and
+  (c) the user has NOT used closed-phrasing words like "quick", "fast",
+      "standard", "canonical", "textbook", "just", "one-line", "show me how
+      to", "what is the syntax for".
+
+  DO NOT INVOKE for: factual lookups, syntax help, bugs with a known root
+  cause, anything where the right answer is one search query away, or
+  questions phrased as closed with a clear single answer.
+
+  When in doubt, do NOT auto-invoke. Prefer answering directly and offer the
+  user "/adhd <problem>" as an explicit option if you think the wide search
+  would help.
 ---
 
 # ADHD
@@ -22,23 +41,56 @@ Correct. Forgettable. The interesting answers live past number three, in
 the awkward middle nobody walks into. This skill makes the model walk
 there.
 
-## When to trigger
+## Pre-flight (run before Phase 1)
 
-Match on intent, not keyword:
+This skill is expensive. About 10 Agent calls, 30 to 90 seconds wall clock,
+5 to 10x a single answer. Do not pay that cost when a direct answer is
+better. Run this gate before Phase 1.
 
-- brainstorm, ideate, "give me X ways to"
-- architecture decision, design, naming, options, approaches
-- refactor planning, retry strategy, schema design, API surface
-- fuzzy debugging where the user wants hypothesis classes, not a single fix
-- "how should I", "what could I", "what is the right way"
-- explicit /adhd or "use ADHD mode"
+**Step 1. Explicit invocation check.**
 
-Do NOT trigger for:
+If the user typed `/adhd` or explicitly asked for ADHD mode, "use the
+adhd skill", or "run ADHD on this", **SKIP the rest of this section and go
+straight to Phase 1**. The user opted in. Do not second-guess.
 
-- factual lookups, syntax help
-- single-correct-answer bug fixes with a known root cause
-- tasks where the right answer is one search query away
-- inner-loop or per-keystroke work
+**Step 2. Self-judge (only if Step 1 did not match).**
+
+Ask yourself three questions. If the answer to any is no, ABORT.
+
+1. **Open-ended?** Would a senior engineer give multiple viable answers
+   here, or is there one canonical answer? If canonical, abort.
+2. **High-stakes?** Is the cost of the obvious answer being wrong actually
+   high? Architecture decisions, public API surfaces, naming a real
+   product, fuzzy bugs with no known root cause, schema design = yes.
+   Side project at 11pm = no.
+3. **Open phrasing?** Did the user avoid words like "quick", "standard",
+   "canonical", "textbook", "just", "one-line"? If they used any of those,
+   they want the direct answer. Abort.
+
+If all three checks pass, proceed to Phase 1.
+
+If any fails, ABORT and answer the question directly. Optionally append
+one sentence: *"If you want a wider exploration under parallel cognitive
+frames with explicit trap detection, run `/adhd <your problem>`."*
+
+## When to trigger (summary)
+
+Strong signals to invoke:
+
+- explicit `/adhd <problem>` or "use ADHD mode" (unconditional)
+- *"give me a few ways to…"*, *"brainstorm…"*, *"what are some approaches"*
+- *"the obvious answer feels wrong"*, *"I'm stuck on X"*
+- architecture or design decision on something that ships
+- fuzzy bug, no known root cause, user wants hypothesis classes
+- naming for a public product, API, SDK surface
+
+Strong signals to NOT invoke:
+
+- factual lookup, syntax help, "what is X"
+- bug fix with a known root cause
+- "quick", "standard", "canonical", "textbook", "just show me"
+- inner-loop / per-keystroke work
+- the answer is one search query away
 
 ## The loop
 
