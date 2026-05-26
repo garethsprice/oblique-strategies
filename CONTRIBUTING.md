@@ -1,4 +1,4 @@
-# Contributing to ADHD
+# Contributing to ADHDStack
 
 Thanks for caring. ADHD is small on purpose — the value lives in the *frames* and the *loop discipline*, not the LOC. Most contributions will be one of:
 
