@@ -48,11 +48,10 @@ export type DeepenedIdea = {
 export type RunOptions = {
   problem: string;
   context?: string;                    // codebase snippets, constraints, stack
-  framesPerRun?: number;               // default 5
+  framesPerRun?: number;               // cards drawn per run, default 5
   ideasPerFrame?: number;              // default 6
   topK?: number;                       // how many to deepen, default 3
   concurrency?: number;                // parallel branches, default 4
-  codeMode?: boolean;                  // bias frames toward engineering
   model?: string;                      // override SDK model
   onEvent?: (e: RunEvent) => void;     // stream progress to caller/CLI
 };

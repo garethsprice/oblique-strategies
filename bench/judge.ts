@@ -1,7 +1,7 @@
 // LLM-as-judge.
 //
 // We can't ground-truth ideation, so we use a separate critic pass to score
-// two outputs (ADHD vs baseline) on the dimensions that matter for *open-ended*
+// two outputs (Oblique Strategies vs baseline) on the dimensions that matter for *open-ended*
 // design work: breadth, novelty, trap detection, actionability, and overall
 // usefulness to a builder.
 //

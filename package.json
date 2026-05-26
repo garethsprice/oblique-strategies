@@ -1,12 +1,13 @@
 {
-  "name": "adhd-agent",
+  "name": "oblique-strategies-agent",
   "version": "0.1.3",
-  "description": "ADHD — a skill for coding agents. Fans out many divergent thoughts in parallel under different cognitive frames, scores them, prunes traps, and deepens the survivors. Tree-of-thought with pruning, built on the Claude Agent SDK. The no-brainer skill for creative and interdisciplinary work.",
+  "description": "Oblique Strategies — a divergent-ideation skill for coding agents. Draws from Brian Eno & Peter Schmidt's 211 Oblique Strategies, fans out many divergent thoughts in parallel (one card per branch), scores them, prunes traps, and deepens the survivors. Tree-of-thought with pruning, built on the Claude Agent SDK. The no-brainer skill for creative and interdisciplinary work.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "adhd": "dist/cli.js"
+    "oblique-strategies": "dist/cli.js",
+    "oblique": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -25,7 +26,8 @@
     "evals:quick": "tsx bench/run-evals.ts --quick"
   },
   "keywords": [
-    "adhd",
+    "oblique-strategies",
+    "brian-eno",
     "ideation",
     "tree-of-thought",
     "chain-of-thought",
@@ -45,11 +47,11 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UditAkhourii/adhd.git"
+    "url": "git+https://github.com/garethsprice/oblique-strategies.git"
   },
-  "homepage": "https://github.com/UditAkhourii/adhd#readme",
+  "homepage": "https://github.com/garethsprice/oblique-strategies#readme",
   "bugs": {
-    "url": "https://github.com/UditAkhourii/adhd/issues"
+    "url": "https://github.com/garethsprice/oblique-strategies/issues"
   },
   "engines": {
     "node": ">=18"
