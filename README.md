@@ -13,6 +13,8 @@ Each card ("Honor thy error as a hidden intention", "Use an old idea", "What wou
 
 It is the skill to reach for on **creative work, interdisciplinary work, design decisions, fuzzy debugging, naming, API surface design, strategy, positioning** — anywhere a single-pass agent would hand you a competent, forgettable answer.
 
+It's a fork of **[ADHD](https://github.com/UditAkhourii/adhd)** by [UditAkhourii](https://github.com/UditAkhourii): the same parallel-divergent loop, with the hand-authored cognitive frames swapped for the Oblique Strategies deck and the trigger made explicit-only. ([What's different →](#how-this-is-different-from-the-original-adhd-skill-and-from-chain-of-thought))
+
 > **Explicit-trigger only.** Unlike a typical always-on skill, this one never auto-fires on "brainstorm"/"design"/"naming" intents. It runs **only** when you invoke `/oblique-strategies` (or ask for it by name). It's expensive on purpose (~10 LLM calls/run), so you opt in at the decision points that are worth it.
 
 Ships three ways: as an **agent skill** ([`skills/oblique-strategies/SKILL.md`](./skills/oblique-strategies/SKILL.md), drop-in via `npx skills add garethsprice/oblique-strategies`, works in Claude Code, Cursor, Codex, and ~50 more), as a **Node/TS library** (`oblique-strategies-agent`), and as a **CLI** (`oblique-strategies "your problem here"`). The library and CLI are built on the [Claude Agent SDK](https://docs.claude.com/en/api/agent-sdk).
@@ -165,7 +167,23 @@ Output:
 
 ---
 
-## How this is different from Chain-of-Thought (and Tree-of-Thought)
+## How this is different from the original ADHD skill (and from Chain-of-Thought)
+
+### vs the original ADHD skill
+
+This is a fork of **[ADHD](https://github.com/UditAkhourii/adhd)**. The loop is identical — parallel isolated divergence, a mechanical generator/critic split, then score → cluster → deepen. What changed is **what drives the branching** and **when it fires**:
+
+| | ADHD (original) | This (Oblique Strategies) |
+|---|---|---|
+| **Branching driver** | 15 hand-authored cognitive frames (hardware engineer, regulator, 10-year-old, biology, speedrunner, …) | the 211 published Oblique Strategy cards |
+| **Frame selection** | tag-biased — `code`/`design` frames favored in `code-mode`, one `wild` slot reserved | uniform random draw; no tags, no `code-mode` |
+| **Per-frame prompt** | a persona / vantage point (*"you are X, re-ask as X would"*) | a cryptic aphorism wrapped as a loose, possibly metaphorical nudge |
+| **Trigger** | auto-fires on brainstorm / ideate / design / naming intents, plus a self-judge gate | **explicit-only** (`/oblique-strategies`) — no auto-fire, no self-judge |
+| **Package / CLI** | `adhd-agent` / `adhd` | `oblique-strategies-agent` / `oblique-strategies` (alias `oblique`) |
+
+Why the swap: a hand-authored frame carries stylistic baggage (*"answer as a 10-year-old"*) that can drag output away from the problem. A domain-agnostic card forces a *fresh angle without a persona*. On the eval suite the two perform on par, with the card deck edging ahead on builder-usefulness (see [Evals](#evals)). Making it explicit-only reflects that this is a deliberate ~10-call move, not something you want firing on every *"give me a few ideas."*
+
+### vs Chain-of-Thought and Tree-of-Thought
 
 Easy to conflate. They are structurally different.
 
@@ -332,17 +350,6 @@ Output: [`EVALS.md`](./EVALS.md) (human-readable verdicts + aggregate table) and
 The eval suite is **local only**. Reproducible numbers come from `npm run evals` on your machine; commit the resulting `EVALS.md` if you want to update the repo's published figures.
 
 Adding a new problem is a 4-line change to [`bench/problems.json`](./bench/problems.json) — see [CONTRIBUTING.md](./CONTRIBUTING.md).
-
----
-
-## Roadmap
-
-- [ ] Recursive deepen (multi-level ToT, not just one)
-- [ ] Pluggable scorers (user-defined weights, custom trap detectors)
-- [ ] Weighting / filtering the draw (e.g. exclude cards that consistently misfire on a problem shape)
-- [ ] Memory across runs — learn which cards win for which problem shapes
-- [ ] Streaming output during divergence
-- [ ] Cross-LLM support (the cards don't depend on Claude)
 
 ---
 
