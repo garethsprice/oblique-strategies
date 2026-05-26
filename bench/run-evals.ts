@@ -63,6 +63,16 @@ function hasFlag(name: string): boolean {
 }
 
 async function main() {
+  // --report-only: re-emit EVALS.md from the cached bench/results.json without
+  // running any LLM calls. Use after editing the report format or the ADHD
+  // reference constants.
+  if (hasFlag("--report-only")) {
+    const cached: RowResult[] = JSON.parse(readFileSync("bench/results.json", "utf8"));
+    writeReport(cached);
+    console.error(`✓ regenerated EVALS.md from bench/results.json (${cached.length} problems, no LLM calls)`);
+    return;
+  }
+
   const allProblems: Problem[] = JSON.parse(
     readFileSync(new URL("./problems.json", import.meta.url), "utf8"),
   );
@@ -133,17 +143,27 @@ function obliqueWon(r: RowResult): "win" | "loss" | "tie" {
 
 // Reference figures from the original ADHD skill — the 15-frame cognitive-frame
 // library this fork replaced — measured on this same 6-problem suite with the
-// same judge rubric in a prior run (6W/0L/0T). Stored as historical constants
-// (not recomputed) so every regeneration re-emits the Oblique-vs-ADHD
-// comparison below. `method` = mean method score per dimension; `delta` = mean
-// lift over that run's own single-shot baseline.
+// same judge rubric, in a dedicated re-run on upstream (UditAkhourii/adhd).
+// Stored as historical constants (not recomputed from this run's transcripts)
+// so every regeneration re-emits the Oblique-vs-ADHD comparison below. `method`
+// and `baseline` are mean method/baseline scores per dimension; `perProblem`
+// holds that run's ADHD method score per problem per dimension. To refresh,
+// re-run upstream's `bench/run-evals.ts` and paste the new numbers here.
 const ADHD_REFERENCE = {
   label: "ADHD (original 15-frame library)",
   wlt: "6W / 0L / 0T",
-  source: "prior run on UditAkhourii/adhd, same suite & rubric",
-  method: { breadth: 8.83, novelty: 7.17, trap_detection: 9.17, actionability: 8.17, builder_usefulness: 7.00 },
-  delta: { breadth: 3.33, novelty: 3.33, trap_detection: 6.83, actionability: 2.00, builder_usefulness: 0.67 },
-} as const;
+  source: "dedicated re-run on UditAkhourii/adhd (upstream), same 6-problem suite & rubric",
+  method: { breadth: 8.67, novelty: 7.00, trap_detection: 8.83, actionability: 7.83, builder_usefulness: 7.17 },
+  baseline: { breadth: 5.83, novelty: 3.50, trap_detection: 1.50, actionability: 6.50, builder_usefulness: 6.33 },
+  perProblem: {
+    "lru-100ms": { breadth: 9, novelty: 7, trap_detection: 9, actionability: 8, builder_usefulness: 7 },
+    "llm-hang-cli": { breadth: 9, novelty: 7, trap_detection: 9, actionability: 8, builder_usefulness: 8 },
+    "rate-limit-leader": { breadth: 9, novelty: 8, trap_detection: 9, actionability: 8, builder_usefulness: 8 },
+    "fuzzy-bug": { breadth: 8, novelty: 7, trap_detection: 9, actionability: 8, builder_usefulness: 7 },
+    "monolith-split": { breadth: 9, novelty: 7, trap_detection: 8, actionability: 7, builder_usefulness: 6 },
+    "naming-feature-flag": { breadth: 8, novelty: 6, trap_detection: 9, actionability: 8, builder_usefulness: 7 },
+  } as Record<string, Record<string, number>>,
+};
 
 function writeReport(rows: RowResult[]) {
   const dims = ["breadth", "novelty", "trap_detection", "actionability", "builder_usefulness"] as const;
@@ -192,14 +212,16 @@ function writeReport(rows: RowResult[]) {
     const oMethod = fmt(meanOblique[d]);
     const oDelta = delta(meanOblique[d], meanBase[d]);
     const aMethod = fmt(ADHD_REFERENCE.method[d]);
-    const aDelta = (ADHD_REFERENCE.delta[d] >= 0 ? "+" : "") + fmt(ADHD_REFERENCE.delta[d]);
+    const aDelta = delta(ADHD_REFERENCE.method[d], ADHD_REFERENCE.baseline[d]);
     lines.push(`| ${d} | ${oMethod} (${oDelta}) | ${aMethod} (${aDelta}) |`);
   }
   lines.push("");
-  lines.push(`_ADHD reference: ${ADHD_REFERENCE.source}. Baselines were near-identical between the two runs (≤0.33/dimension), so the method comparison is reasonably fair. Caveat: n=1 per problem with a stochastic baseline + judge — treat sub-point gaps as noise. Re-running \`npm run evals\` regenerates the Oblique figures and re-emits this table from the stored ADHD constants._`);
+  lines.push(`_ADHD reference: ${ADHD_REFERENCE.source}. The two runs' baselines were close (within ~0.5/dimension), so the method comparison is reasonably fair. Caveat: n=1 per problem with a stochastic baseline + judge — treat sub-point gaps as noise. Re-running \`npm run evals\` regenerates the Oblique figures and re-emits this table from the stored ADHD constants._`);
   lines.push("");
 
   lines.push(`## Per-problem verdicts`);
+  lines.push("");
+  lines.push(`_The **ADHD** column is the method score for the same problem from the separate ADHD reference run (its own baseline + judge call); \`Oblique\`, \`base\`, and the verdict/reason are from this run._`);
   lines.push("");
   for (const r of rows) {
     const winner = obliqueWon(r) === "win" ? "✓ Oblique" : obliqueWon(r) === "loss" ? "✗ baseline" : "= tie";
@@ -210,11 +232,13 @@ function writeReport(rows: RowResult[]) {
     lines.push("");
     lines.push(`**Verdict:** ${r.verdict.one_line_summary}`);
     lines.push("");
-    lines.push(`| dim | Oblique | base | reason |`);
-    lines.push(`| --- | ---: | ---: | --- |`);
+    lines.push(`| dim | Oblique | base | ADHD | reason |`);
+    lines.push(`| --- | ---: | ---: | ---: | --- |`);
     for (const d of dims) {
       const reason = (r.verdict[d] as { reason: string }).reason.replace(/\|/g, "\\|");
-      lines.push(`| ${d} | ${obliqueScore(r, d)} | ${baselineScore(r, d)} | ${reason} |`);
+      const adhd = ADHD_REFERENCE.perProblem[r.problemId]?.[d];
+      const adhdCell = adhd === undefined ? "—" : String(adhd);
+      lines.push(`| ${d} | ${obliqueScore(r, d)} | ${baselineScore(r, d)} | ${adhdCell} | ${reason} |`);
     }
     lines.push("");
   }
