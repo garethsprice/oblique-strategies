@@ -14,6 +14,20 @@ Run: 2026-05-26T15:56:07.262Z · problems: 6
 | actionability | 8.00 | 6.17 | +1.83 |
 | builder_usefulness | 7.83 | 6.17 | +1.67 |
 
+## Comparison: Oblique Strategies vs the original ADHD skill
+
+Both swept their own single-shot baseline (Oblique 6W / 0L / 0T · ADHD 6W / 0L / 0T). The fair read is each method's **lift over its own freshly-generated baseline** (Δ), since the two runs used separate baseline and judge calls.
+
+| Dimension | Oblique (Δ vs base) | ADHD (Δ vs base) |
+| --- | ---: | ---: |
+| breadth | 8.83 (+3.50) | 8.83 (+3.33) |
+| novelty | 7.33 (+3.83) | 7.17 (+3.33) |
+| trap_detection | 9.00 (+7.00) | 9.17 (+6.83) |
+| actionability | 8.00 (+1.83) | 8.17 (+2.00) |
+| builder_usefulness | 7.83 (+1.67) | 7.00 (+0.67) |
+
+_ADHD reference: prior run on UditAkhourii/adhd, same suite & rubric. Baselines were near-identical between the two runs (≤0.33/dimension), so the method comparison is reasonably fair. Caveat: n=1 per problem with a stochastic baseline + judge — treat sub-point gaps as noise. Re-running `npm run evals` regenerates the Oblique figures and re-emits this table from the stored ADHD constants._
+
 ## Per-problem verdicts
 
 ### lru-100ms — ✓ Oblique

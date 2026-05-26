@@ -131,6 +131,20 @@ function obliqueWon(r: RowResult): "win" | "loss" | "tie" {
   return "tie";
 }
 
+// Reference figures from the original ADHD skill — the 15-frame cognitive-frame
+// library this fork replaced — measured on this same 6-problem suite with the
+// same judge rubric in a prior run (6W/0L/0T). Stored as historical constants
+// (not recomputed) so every regeneration re-emits the Oblique-vs-ADHD
+// comparison below. `method` = mean method score per dimension; `delta` = mean
+// lift over that run's own single-shot baseline.
+const ADHD_REFERENCE = {
+  label: "ADHD (original 15-frame library)",
+  wlt: "6W / 0L / 0T",
+  source: "prior run on UditAkhourii/adhd, same suite & rubric",
+  method: { breadth: 8.83, novelty: 7.17, trap_detection: 9.17, actionability: 8.17, builder_usefulness: 7.00 },
+  delta: { breadth: 3.33, novelty: 3.33, trap_detection: 6.83, actionability: 2.00, builder_usefulness: 0.67 },
+} as const;
+
 function writeReport(rows: RowResult[]) {
   const dims = ["breadth", "novelty", "trap_detection", "actionability", "builder_usefulness"] as const;
 
@@ -166,6 +180,25 @@ function writeReport(rows: RowResult[]) {
     lines.push(`| ${d} | ${fmt(meanOblique[d])} | ${fmt(meanBase[d])} | ${delta(meanOblique[d], meanBase[d])} |`);
   }
   lines.push("");
+
+  // Comparison vs the original ADHD skill (historical reference figures).
+  lines.push(`## Comparison: Oblique Strategies vs the original ADHD skill`);
+  lines.push("");
+  lines.push(`Both swept their own single-shot baseline (Oblique ${wins}W / ${losses}L / ${ties}T · ADHD ${ADHD_REFERENCE.wlt}). The fair read is each method's **lift over its own freshly-generated baseline** (Δ), since the two runs used separate baseline and judge calls.`);
+  lines.push("");
+  lines.push(`| Dimension | Oblique (Δ vs base) | ADHD (Δ vs base) |`);
+  lines.push(`| --- | ---: | ---: |`);
+  for (const d of dims) {
+    const oMethod = fmt(meanOblique[d]);
+    const oDelta = delta(meanOblique[d], meanBase[d]);
+    const aMethod = fmt(ADHD_REFERENCE.method[d]);
+    const aDelta = (ADHD_REFERENCE.delta[d] >= 0 ? "+" : "") + fmt(ADHD_REFERENCE.delta[d]);
+    lines.push(`| ${d} | ${oMethod} (${oDelta}) | ${aMethod} (${aDelta}) |`);
+  }
+  lines.push("");
+  lines.push(`_ADHD reference: ${ADHD_REFERENCE.source}. Baselines were near-identical between the two runs (≤0.33/dimension), so the method comparison is reasonably fair. Caveat: n=1 per problem with a stochastic baseline + judge — treat sub-point gaps as noise. Re-running \`npm run evals\` regenerates the Oblique figures and re-emits this table from the stored ADHD constants._`);
+  lines.push("");
+
   lines.push(`## Per-problem verdicts`);
   lines.push("");
   for (const r of rows) {
